@@ -14,7 +14,7 @@ import datetime
 # updatedAt: The date and time when the task was last updated
 
 def write_task(id, description, status, createdAt, updatedAt):
-    return f"{{\nid: {id},\ndescription: {description},\nstatus: {status},\ncreated at: {createdAt},\nupdated at: {updatedAt}\n}}\n"
+    return f'{{\n"id": {id},\n"description": "{description}",\n"status": "{status}",\n"created at": "{createdAt}",\n"updated at": "{updatedAt}"\n}}\n'
 
 def add_task(args):
     createdAt = datetime.datetime.now()
@@ -22,7 +22,7 @@ def add_task(args):
         
     file = None
     try:
-        file = open("tasks.txt", "r", encoding="utf-8")
+        file = open("tasks.json", "r", encoding="utf-8")
     except FileNotFoundError:
         current_id = 1
     else:
@@ -31,7 +31,7 @@ def add_task(args):
     finally:
         if file is not None:
             file.close()
-    with open("tasks.txt", "a", encoding="utf-8") as file:
+    with open("tasks.json", "a", encoding="utf-8") as file:
         file.write(write_task(current_id, args[0], "not done", createdAt, updatedAt))
     return
 
