@@ -21,7 +21,6 @@ def add_task(args):
         if "{" in slice:
             current_id += 1
         if "]" in slice:
-            print("bracket")
             break
     
     if current_id == 1:
