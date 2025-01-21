@@ -17,12 +17,14 @@ def add_task(args):
     current_id = 1
     while True:
         index = file.tell()
-        slice = file.read(1)
-        if "{" in slice:
+        char = file.read(1)
+        if char == '{':
             current_id += 1
-        if "]" in slice:
+        if char == "]":
             break
     
+    file.truncate()
+
     if current_id == 1:
         file.seek(index)
     
@@ -30,11 +32,35 @@ def add_task(args):
         file.seek(index - 2)
         file.write(",\n")
 
-    file.write(write_task(current_id, args[0], "not done", createdAt, updatedAt))
+    file.write(write_task(current_id, args[0], "todo", createdAt, updatedAt))
     return
 
 def update_task(args):
-    pass
+    global file
+
+    updatedAt = datetime.datetime.now()
+
+    file.seek(0)
+
+    current_id = args[0]
+    new_description = args[1]
+
+    file_content = file.readlines()
+    file.seek(0)
+    
+    i = 0
+    while i < len(file_content):
+        file.write(file_content[i])
+        if f'"id": {current_id}' in file_content[i]: # id line
+            file.write(f'{tab}"description": "{new_description}",\n')
+            file.write(file_content[i+2]) # status line
+            file.write(file_content[i+3]) # createdAt line
+            file.write(f'{tab}"updated at": "{updatedAt}"\n')
+            i += 4
+        i += 1  
+
+    file.truncate()
+    return        
 
 def delete_task(args):
     pass
@@ -60,8 +86,7 @@ def mark_in_progress(args):
             file.writelines(line)
     finally:
         if file is not None:
-            file.close()
-    
+            file.close() 
 
 def mark_done(args):
     file = None
