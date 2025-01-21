@@ -1,26 +1,37 @@
 import sys
 import datetime
 
+# Estudar manipulação de arquivos a fundo
+
 def write_task(id, description, status, createdAt, updatedAt):
-    return f'{{\n"id": {id},\n"description": "{description}",\n"status": "{status}",\n"created at": "{createdAt}",\n"updated at": "{updatedAt}"\n}}\n'
+    return f'{{\n{tab}"id": {id},\n{tab}"description": "{description}",\n{tab}"status": "{status}",\n{tab}"created at": "{createdAt}",\n{tab}"updated at": "{updatedAt}"\n}}\n]'
 
 def add_task(args):
+    global file
+
     createdAt = datetime.datetime.now()
     updatedAt = datetime.datetime.now()
-        
-    file = None
-    try:
-        file = open("tasks.json", "r", encoding="utf-8")
-    except FileNotFoundError:
-        current_id = 1
-    else:
-        file_content = file.read()
-        current_id = file_content.count("{") + 1
-    finally:
-        if file is not None:
-            file.close()
-    with open("tasks.json", "a", encoding="utf-8") as file:
-        file.write(write_task(current_id, args[0], "not done", createdAt, updatedAt))
+    
+    file.seek(0)
+
+    current_id = 1
+    while True:
+        index = file.tell()
+        slice = file.read(1)
+        if "{" in slice:
+            current_id += 1
+        if "]" in slice:
+            print("bracket")
+            break
+    
+    if current_id == 1:
+        file.seek(index)
+    
+    if current_id > 1:
+        file.seek(index - 2)
+        file.write(",\n")
+
+    file.write(write_task(current_id, args[0], "not done", createdAt, updatedAt))
     return
 
 def update_task(args):
@@ -87,8 +98,16 @@ cmd_table = {
 
 command = sys.argv[1]
 args = sys.argv[2:]
+tab = "    "
 
-cmd_table[command](args)
-
-
-    
+file = None
+try:
+    file = open("tasks.json", "r+", encoding="utf-8")
+except FileNotFoundError:
+    print("Creating the file tasks.json...")
+    file = open("tasks.json", "w+", encoding="utf-8")
+    file.write("[\n]")
+finally:
+    if file is not None:
+        cmd_table[command](args)
+        file.close()
