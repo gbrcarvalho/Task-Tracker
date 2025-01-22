@@ -1,10 +1,11 @@
 import sys
 import datetime
+import os
 
 # Estudar manipulação de arquivos a fundo
 
 def write_task(id, description, status, createdAt, updatedAt):
-    return f'{{\n{tab}"id": {id},\n{tab}"description": "{description}",\n{tab}"status": "{status}",\n{tab}"created at": "{createdAt}",\n{tab}"updated at": "{updatedAt}"\n}}\n]'
+    return f'{{{newline}{tab}"id": {id},{newline}{tab}"description": "{description}",{newline}{tab}"status": "{status}",{newline}{tab}"created at": "{createdAt}",{newline}{tab}"updated at": "{updatedAt}"{newline}}}{newline}]'
 
 def add_task(args):
     global file
@@ -29,8 +30,8 @@ def add_task(args):
         file.seek(index)
     
     if current_id > 1:
-        file.seek(index - 2)
-        file.write(",\n")
+        file.seek(index - 1)
+        file.write(f",{newline}")
 
     file.write(write_task(current_id, args[0], "todo", createdAt, updatedAt))
     return
@@ -52,10 +53,10 @@ def update_task(args):
     while i < len(file_content):
         file.write(file_content[i])
         if f'"id": {current_id}' in file_content[i]: # id line
-            file.write(f'{tab}"description": "{new_description}",\n')
+            file.write(f'{tab}"description": "{new_description}",{newline}')
             file.write(file_content[i+2]) # status line
             file.write(file_content[i+3]) # createdAt line
-            file.write(f'{tab}"updated at": "{updatedAt}"\n')
+            file.write(f'{tab}"updated at": "{updatedAt}"{newline}')
             i += 4
         i += 1  
 
@@ -95,7 +96,7 @@ def delete_task(args):
         if i + 1 >= number_of_lines - 9:
             if f'"id": {current_id}' in file_content[i+3]: # id line
                 file.write(file_content[i])
-                file.write("}\n")
+                file.write(f"}}{newline}")
                 i += 9
         file.write(file_content[i])
         i += 1  
@@ -119,15 +120,16 @@ cmd_table = {
 
 command = sys.argv[1]
 args = sys.argv[2:]
+newline = "\n"
 tab = "    "
 
 file = None
 try:
-    file = open("tasks.json", "r+", encoding="utf-8")
+    file = open("tasks.json", "r+", newline=newline)
 except FileNotFoundError:
     print("Creating the file tasks.json...")
-    file = open("tasks.json", "w+", encoding="utf-8")
-    file.write("[\n]")
+    file = open("tasks.json", "w+", newline=newline)
+    file.write(f"[{newline}]")
 finally:
     if file is not None:
         cmd_table[command](args)
