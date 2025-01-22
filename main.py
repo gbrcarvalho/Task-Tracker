@@ -63,7 +63,49 @@ def update_task(args):
     return        
 
 def delete_task(args):
-    pass
+    global file
+
+    file.seek(0)
+
+    current_id = args[0]
+
+    file_content = file.readlines()
+    file.seek(0)
+    
+    number_of_lines = len(file_content)
+    number_of_tasks = int((number_of_lines - 2) / 7)
+    last_task_index = int(1 + 7 * (number_of_tasks - 1))
+    desired_index = last_task_index - 1
+
+    i = 0
+    while i < number_of_lines:
+        try:
+            line = file_content[i+2]
+        except IndexError:
+            file.write(file_content[i])
+            file.write(file_content[i+1])
+            break
+        try:
+            line = file_content[i+3]
+        except IndexError:
+            file.write(file_content[i])
+            file.write(file_content[i+1])
+            file.write(file_content[i+2])
+            break
+        if f'"id": {current_id}' in file_content[i+2]: # id line
+            file.write(file_content[i])
+            i += 8
+        if i + 1 >= number_of_lines - 9:
+            if f'"id": {current_id}' in file_content[i+3]: # id line
+                file.write(file_content[i])
+                file.write("}\n")
+                i += 9
+        print(f"[{i}] ",(i + 1), "/", number_of_lines, "written")
+        file.write(file_content[i])
+        i += 1  
+
+    file.truncate()
+    return        
 
 def mark_in_progress(args):
     file = None
