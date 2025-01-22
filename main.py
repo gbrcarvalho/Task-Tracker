@@ -73,9 +73,6 @@ def delete_task(args):
     file.seek(0)
     
     number_of_lines = len(file_content)
-    number_of_tasks = int((number_of_lines - 2) / 7)
-    last_task_index = int(1 + 7 * (number_of_tasks - 1))
-    desired_index = last_task_index - 1
 
     i = 0
     while i < number_of_lines:
@@ -100,7 +97,6 @@ def delete_task(args):
                 file.write(file_content[i])
                 file.write("}\n")
                 i += 9
-        print(f"[{i}] ",(i + 1), "/", number_of_lines, "written")
         file.write(file_content[i])
         i += 1  
 
@@ -108,51 +104,10 @@ def delete_task(args):
     return        
 
 def mark_in_progress(args):
-    file = None
-    try:
-        file = open("tasks.txt", "r+", encoding="utf-8")
-    except FileNotFoundError:
-        print("The task doesn't exist!")
-        return
-    else:
-        file_content = file.readlines()
-        for i, line in enumerate(file_content):
-            if f"id: {args[0]}," in line:
-                updatedAt = datetime.datetime.now()
-                file_content[i+2] = "status: in progress,\n"
-                file_content[i+4] = f"updated at: {updatedAt}\n"
-                break
-        
-        file.seek(0)
-        for line in file_content:
-            file.writelines(line)
-    finally:
-        if file is not None:
-            file.close() 
+    pass
 
 def mark_done(args):
-    file = None
-    try:
-        file = open("tasks.txt", "r+", encoding="utf-8")
-    except FileNotFoundError:
-        print("The task doesn't exist!")
-        return
-    else:
-        file_content = file.readlines()
-        for i, line in enumerate(file_content):
-            if f"id: {args[0]}," in line:
-                updatedAt = datetime.datetime.now()
-                file_content[i+2] = "status: done,\n"
-                file_content[i+4] = f"updated at: {updatedAt}\n"
-                break
-        
-        file.seek(0)
-        for line in file_content:
-            print(line)
-            file.writelines(line)
-    finally:
-        if file is not None:
-            file.close()
+    pass
  
 cmd_table = {
     "add": add_task,
